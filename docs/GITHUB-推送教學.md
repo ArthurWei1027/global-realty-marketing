@@ -45,7 +45,19 @@ chmod +x scripts/push-to-github.sh
 
 ---
 
-## 方式三：Cursor Cloud Agent 已推送時
+## 方式三：GitHub（已推送 ✅）
+
+**Repo（Private）：** https://github.com/ArthurWei1027/global-realty-marketing
+
+```bash
+git clone https://github.com/ArthurWei1027/global-realty-marketing.git
+```
+
+SEO 文章：`seo-articles/`
+
+---
+
+## 方式四：Cursor Cloud Agent 已推送時（舊）
 
 若 Agent 回覆已推送成功，直接：
 
