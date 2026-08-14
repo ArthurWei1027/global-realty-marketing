@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>環球置業 UTM 連結產生器</title>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --card: #1a2332;
+      --border: #2d3a4f;
+      --accent: #c9a227;
+      --text: #e8ecf1;
+      --muted: #8b9cb3;
+      --success: #3d9a6a;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Segoe UI", "Microsoft JhengHei", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+    .wrap { max-width: 720px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+    header { text-align: center; margin-bottom: 2rem; }
+    header h1 { font-size: 1.5rem; font-weight: 600; color: var(--accent); }
+    header p { color: var(--muted); font-size: 0.9rem; margin-top: 0.35rem; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+    .card h2 { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 1rem; }
+    label { display: block; font-size: 0.85rem; color: var(--muted); margin-bottom: 0.35rem; }
+    select, input[type="text"], input[type="url"] {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      padding: 0.6rem 0.75rem;
+      font-size: 0.95rem;
+      font-family: inherit;
+      margin-bottom: 0.85rem;
+    }
+    select:focus, input:focus { outline: none; border-color: var(--accent); }
+    .grid-2 { display: grid; gap: 0.85rem; }
+    @media (min-width: 560px) { .grid-2 { grid-template-columns: 1fr 1fr; } }
+    .presets { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.85rem; }
+    .preset {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 0.35rem 0.75rem;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+    .preset:hover { border-color: var(--accent); }
+    .output {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.85rem;
+      font-size: 0.88rem;
+      word-break: break-all;
+      min-height: 3rem;
+    }
+    .output-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem; }
+    .output-head span { font-size: 0.8rem; font-weight: 600; color: var(--accent); }
+    button {
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      padding: 0.65rem 1.25rem;
+      font-size: 0.95rem;
+      font-family: inherit;
+      font-weight: 600;
+    }
+    .btn-primary { background: var(--accent); color: #1a1200; width: 100%; margin-top: 0.5rem; }
+    .btn-copy { font-size: 0.75rem; padding: 0.25rem 0.6rem; background: var(--bg); color: var(--muted); border: 1px solid var(--border); border-radius: 6px; }
+    .btn-copy.copied { color: var(--success); border-color: var(--success); }
+    .hint { font-size: 0.8rem; color: var(--muted); margin-top: 0.5rem; }
+    footer { text-align: center; margin-top: 2rem; font-size: 0.8rem; color: var(--muted); }
+    .toast {
+      position: fixed; bottom: 1.5rem; left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--success); color: #fff;
+      padding: 0.6rem 1.2rem; border-radius: 8px;
+      font-size: 0.9rem; opacity: 0;
+      transition: transform 0.25s, opacity 0.25s;
+      pointer-events: none; z-index: 100;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>🔗 環球置業 UTM 連結產生器</h1>
+      <p>FB 廣告 · Surfn Chatbot · 說明會 Landing · GA4 追蹤</p>
+    </header>
+
+    <div class="card">
+      <h2>基本 URL</h2>
+      <label for="baseUrl">官網填表頁或 Landing 網址</label>
+      <input type="url" id="baseUrl" placeholder="https://yoursite.com/contact/" value="https://example.com/contact/" />
+      <div class="presets" id="urlPresets">
+        <span class="preset" data-url="https://example.com/contact/">填表總頁</span>
+        <span class="preset" data-url="https://example.com/623-collins/">623 頁</span>
+        <span class="preset" data-url="https://example.com/aura/">AURA 頁</span>
+        <span class="preset" data-url="https://example.com/seminar/">說明會</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>UTM 參數</h2>
+      <div class="grid-2">
+        <div>
+          <label for="source">utm_source</label>
+          <select id="source">
+            <option value="facebook">facebook</option>
+            <option value="instagram">instagram</option>
+            <option value="surfn">surfn</option>
+            <option value="google">google</option>
+            <option value="line">line</option>
+            <option value="email">email</option>
+          </select>
+        </div>
+        <div>
+          <label for="medium">utm_medium</label>
+          <select id="medium">
+            <option value="paid">paid</option>
+            <option value="chatbot">chatbot</option>
+            <option value="organic">organic</option>
+            <option value="social">social</option>
+            <option value="cpc">cpc</option>
+          </select>
+        </div>
+      </div>
+      <label for="campaign">utm_campaign</label>
+      <select id="campaign">
+        <option value="623">623</option>
+        <option value="aura">aura</option>
+        <option value="global-realty">global-realty</option>
+        <option value="seminar-2026">seminar-2026</option>
+        <option value="custom">自訂…</option>
+      </select>
+      <input type="text" id="campaignCustom" placeholder="自訂 campaign 名稱" style="display:none;" />
+      <label for="content">utm_content（選填，例 invest-1）</label>
+      <input type="text" id="content" placeholder="invest-1 / live-2 / retarget-week1" />
+      <label for="term">utm_term（選填，Google 關鍵字用）</label>
+      <input type="text" id="term" placeholder="" />
+    </div>
+
+    <div class="card">
+      <h2>快速預設</h2>
+      <div class="presets" id="fullPresets">
+        <span class="preset" data-preset="fb-623">FB 623 廣告</span>
+        <span class="preset" data-preset="fb-aura">FB AURA 廣告</span>
+        <span class="preset" data-preset="fb-brand">FB 品牌廣告</span>
+        <span class="preset" data-preset="surfn-623">Surfn 623</span>
+        <span class="preset" data-preset="surfn-aura">Surfn AURA</span>
+        <span class="preset" data-preset="seminar">說明會</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="output-head">
+        <span>完整連結</span>
+        <button type="button" class="btn-copy" id="copyBtn">複製</button>
+      </div>
+      <div class="output" id="output">—</div>
+      <p class="hint">貼到 Meta 廣告「網站 URL」、Surfn Lead Task、或說明會 QR Code</p>
+    </div>
+
+    <footer>本機工具 · 對照 docs/建案對照-cheat-sheet.md</footer>
+  </div>
+  <div class="toast" id="toast">已複製</div>
+
+  <script>
+    const PRESETS = {
+      "fb-623": { source: "facebook", medium: "paid", campaign: "623", content: "invest-1" },
+      "fb-aura": { source: "facebook", medium: "paid", campaign: "aura", content: "live-1" },
+      "fb-brand": { source: "facebook", medium: "paid", campaign: "global-realty", content: "trust-1" },
+      "surfn-623": { source: "surfn", medium: "chatbot", campaign: "623", content: "" },
+      "surfn-aura": { source: "surfn", medium: "chatbot", campaign: "aura", content: "" },
+      "seminar": { source: "facebook", medium: "paid", campaign: "seminar-2026", content: "landing" }
+    };
+
+    const els = {
+      baseUrl: document.getElementById('baseUrl'),
+      source: document.getElementById('source'),
+      medium: document.getElementById('medium'),
+      campaign: document.getElementById('campaign'),
+      campaignCustom: document.getElementById('campaignCustom'),
+      content: document.getElementById('content'),
+      term: document.getElementById('term'),
+      output: document.getElementById('output')
+    };
+
+    function getCampaign() {
+      return els.campaign.value === 'custom' ? els.campaignCustom.value.trim() : els.campaign.value;
+    }
+
+    function buildUrl() {
+      let base = els.baseUrl.value.trim();
+      if (!base) return '請輸入基本 URL';
+
+      try {
+        const url = new URL(base);
+        url.searchParams.set('utm_source', els.source.value);
+        url.searchParams.set('utm_medium', els.medium.value);
+        const camp = getCampaign();
+        if (camp) url.searchParams.set('utm_campaign', camp);
+        const content = els.content.value.trim();
+        if (content) url.searchParams.set('utm_content', content);
+        const term = els.term.value.trim();
+        if (term) url.searchParams.set('utm_term', term);
+        return url.toString();
+      } catch {
+        return 'URL 格式不正確';
+      }
+    }
+
+    function update() {
+      els.output.textContent = buildUrl();
+    }
+
+    function applyPreset(key) {
+      const p = PRESETS[key];
+      if (!p) return;
+      els.source.value = p.source;
+      els.medium.value = p.medium;
+      if (['623', 'aura', 'global-realty', 'seminar-2026'].includes(p.campaign)) {
+        els.campaign.value = p.campaign;
+        els.campaignCustom.style.display = 'none';
+      } else {
+        els.campaign.value = 'custom';
+        els.campaignCustom.value = p.campaign;
+        els.campaignCustom.style.display = 'block';
+      }
+      els.content.value = p.content || '';
+      update();
+    }
+
+    els.campaign.addEventListener('change', () => {
+      els.campaignCustom.style.display = els.campaign.value === 'custom' ? 'block' : 'none';
+      update();
+    });
+
+    ['baseUrl', 'source', 'medium', 'campaign', 'campaignCustom', 'content', 'term'].forEach(id => {
+      els[id]?.addEventListener('input', update);
+      els[id]?.addEventListener('change', update);
+    });
+
+    document.querySelectorAll('#urlPresets .preset').forEach(el => {
+      el.addEventListener('click', () => {
+        els.baseUrl.value = el.dataset.url;
+        update();
+      });
+    });
+
+    document.querySelectorAll('#fullPresets .preset').forEach(el => {
+      el.addEventListener('click', () => applyPreset(el.dataset.preset));
+    });
+
+    document.getElementById('copyBtn').addEventListener('click', () => {
+      const text = els.output.textContent;
+      if (!text || text.startsWith('請') || text.startsWith('URL')) return;
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById('copyBtn');
+        btn.classList.add('copied');
+        btn.textContent = '已複製';
+        const t = document.getElementById('toast');
+        t.classList.add('show');
+        setTimeout(() => {
+          btn.classList.remove('copied');
+          btn.textContent = '複製';
+          t.classList.remove('show');
+        }, 1500);
+      });
+    });
+
+    update();
+  </script>
+</body>
+</html>

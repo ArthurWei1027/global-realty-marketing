@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>環球置業 FB 廣告文案產生器</title>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --card: #1a2332;
+      --border: #2d3a4f;
+      --accent: #c9a227;
+      --accent-dim: #8a7020;
+      --text: #e8ecf1;
+      --muted: #8b9cb3;
+      --success: #3d9a6a;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Segoe UI", "Microsoft JhengHei", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+    .wrap { max-width: 900px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+    header { text-align: center; margin-bottom: 2rem; }
+    header h1 { font-size: 1.5rem; font-weight: 600; color: var(--accent); }
+    header p { color: var(--muted); font-size: 0.9rem; margin-top: 0.35rem; }
+    .grid { display: grid; gap: 1.25rem; }
+    @media (min-width: 720px) { .grid-2 { grid-template-columns: 1fr 1fr; } }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+    }
+    .card h2 { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 1rem; }
+    label { display: block; font-size: 0.85rem; color: var(--muted); margin-bottom: 0.35rem; }
+    select, input[type="text"], textarea {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      padding: 0.6rem 0.75rem;
+      font-size: 0.95rem;
+      font-family: inherit;
+      margin-bottom: 0.85rem;
+    }
+    select:focus, input:focus, textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    textarea { min-height: 72px; resize: vertical; }
+    .chips { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.85rem; }
+    .chip {
+      display: flex; align-items: center; gap: 0.35rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 0.35rem 0.75rem;
+      font-size: 0.85rem;
+      cursor: pointer;
+      user-select: none;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .chip:has(input:checked) { border-color: var(--accent); background: rgba(201,162,39,0.12); }
+    .chip input { accent-color: var(--accent); }
+    .actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 0.5rem; }
+    button {
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      padding: 0.65rem 1.25rem;
+      font-size: 0.95rem;
+      font-family: inherit;
+      font-weight: 600;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+    button:active { transform: scale(0.98); }
+    .btn-primary { background: var(--accent); color: #1a1200; flex: 1; min-width: 140px; }
+    .btn-primary:hover { opacity: 0.92; }
+    .btn-secondary { background: transparent; color: var(--text); border: 1px solid var(--border); }
+    .btn-secondary:hover { border-color: var(--accent); }
+    .output-block { margin-bottom: 1.25rem; }
+    .output-block:last-child { margin-bottom: 0; }
+    .output-head {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 0.4rem;
+    }
+    .output-head span { font-size: 0.8rem; font-weight: 600; color: var(--accent); }
+    .copy-btn {
+      font-size: 0.75rem; padding: 0.25rem 0.6rem;
+      background: var(--bg); color: var(--muted);
+      border: 1px solid var(--border); border-radius: 6px;
+    }
+    .copy-btn.copied { color: var(--success); border-color: var(--success); }
+    .output-text {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.85rem;
+      font-size: 0.92rem;
+      white-space: pre-wrap;
+      word-break: break-word;
+      min-height: 3rem;
+    }
+    .toast {
+      position: fixed; bottom: 1.5rem; left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--success); color: #fff;
+      padding: 0.6rem 1.2rem; border-radius: 8px;
+      font-size: 0.9rem; opacity: 0;
+      transition: transform 0.25s, opacity 0.25s;
+      pointer-events: none; z-index: 100;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+    footer { text-align: center; margin-top: 2rem; font-size: 0.8rem; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>🏠 環球置業 FB 廣告文案產生器</h1>
+      <p>623 · AURA · 環球置業｜輸出：標題、說明、文案（含 emoji、#hashtag、CTA）</p>
+    </header>
+
+    <div class="grid grid-2">
+      <div class="card">
+        <h2>基本設定</h2>
+        <label for="brand">建案 / 品牌</label>
+        <select id="brand">
+          <option value="623">623 Collins（墨爾本 CBD）</option>
+          <option value="AURA">AURA Melbourne Square（Southbank）</option>
+          <option value="環球置業">環球置業</option>
+        </select>
+        <label for="audience">目標受眾</label>
+        <select id="audience">
+          <option value="投資">投資型買家</option>
+          <option value="自住">自住家庭</option>
+          <option value="首購">首購 / 觀望族群</option>
+        </select>
+        <label for="location">地點 / 區域（選填）</label>
+        <input type="text" id="location" placeholder="例：墨爾本 CBD、Southbank、Collins Street..." />
+        <label for="highlight">額外亮點（選填）</label>
+        <textarea id="highlight" placeholder="例：Southern Cross 步行、河景視野、FIRB 可購、限時優惠..."></textarea>
+      </div>
+
+      <div class="card">
+        <h2>賣點勾選</h2>
+        <div class="chips" id="sellingPoints"></div>
+        <label for="tone">語氣</label>
+        <select id="tone">
+          <option value="專業">專業穩健</option>
+          <option value="溫暖">溫暖親切</option>
+          <option value="急迫">限時優惠感</option>
+        </select>
+        <div class="actions">
+          <button type="button" class="btn-primary" id="generate">✨ 產生文案</button>
+          <button type="button" class="btn-secondary" id="shuffle">🔄 換一版</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top: 1.25rem;">
+      <h2>輸出結果</h2>
+      <div class="output-block">
+        <div class="output-head"><span>標題</span><button type="button" class="copy-btn" data-target="out-title">複製</button></div>
+        <div class="output-text" id="out-title">點擊「產生文案」開始</div>
+      </div>
+      <div class="output-block">
+        <div class="output-head"><span>說明</span><button type="button" class="copy-btn" data-target="out-desc">複製</button></div>
+        <div class="output-text" id="out-desc"></div>
+      </div>
+      <div class="output-block">
+        <div class="output-head"><span>文案</span><button type="button" class="copy-btn" data-target="out-body">複製</button></div>
+        <div class="output-text" id="out-body"></div>
+      </div>
+      <div class="actions" style="margin-top: 1rem;">
+        <button type="button" class="btn-secondary" id="copy-all">📋 複製全部</button>
+      </div>
+    </div>
+
+    <footer>本機工具 · 無需網路 · 可搭配 Cursor Rules 使用 AI 進階潤飾</footer>
+  </div>
+  <div class="toast" id="toast">已複製</div>
+
+  <script>
+    const SELLING_OPTIONS = [
+      "CBD 核心", "交通樞紐", "租金回報", "品牌建商", "河景視野",
+      "社區配套", "FIRB 可購", "匯率分散", "一對一顧問", "合法產權"
+    ];
+
+    const BRAND = {
+      "623": {
+        name: "623 Collins",
+        defaultLoc: "墨爾本 CBD",
+        tags: ["#623Collins", "#墨爾本CBD", "#澳洲置產", "#海外投資", "#環球置業"],
+        hooks: [
+          "Collins Street 西端核心，CBD 生活與投資兩相宜",
+          "Southern Cross 交通樞紐旁，把握都會發展紅利",
+          "百年 State Bank House 立面＋現代高層，稀缺核心資產"
+        ]
+      },
+      "AURA": {
+        name: "AURA Melbourne Square",
+        defaultLoc: "Southbank",
+        tags: ["#AURA", "#MelbourneSquare", "#Southbank", "#墨爾本河景", "#環球置業"],
+        hooks: [
+          "Southbank 南岸河景，一橋之隔即墨爾本 CBD",
+          "Melbourne Square 第三期，大型綜合社區生活",
+          "日式養生會所＋天際視野，為講究生活的您精選"
+        ]
+      },
+      "環球置業": {
+        name: "環球置業",
+        defaultLoc: "澳洲",
+        tags: ["#環球置業", "#GlobalRealty", "#澳洲置產", "#墨爾本", "#專業顧問"],
+        hooks: [
+          "澳洲置產，有專業團隊一路同行",
+          "從 FIRB 到選戶簽約，一站式顧問服務",
+          "台灣團隊支援，溝通零距離"
+        ]
+      }
+    };
+
+    const AUDIENCE = {
+      "投資": {
+        open: ["想讓資產不只放銀行？", "尋找穩健的海外配置標的？", "租金＋增值，雙軌佈局正當時！"],
+        points: ["關注區域發展與租金潛力", "適合長期持有、穩健配置", "專人協助評估投資結構"],
+        emoji: ["📈", "💰", "🌏"]
+      },
+      "自住": {
+        open: ["給家人一個更好的選擇？", "海外生活，也可以很從容。", "品質居所，從每一天的回家開始。"],
+        points: ["重視生活機能與居住舒適", "社區環境與周邊配套完整", "適合家庭長期定居規劃"],
+        emoji: ["🏡", "✨", "👨‍👩‍👧"]
+      },
+      "首購": {
+        open: ["第一次考慮海外置產？", "門檻沒想像中高！", "流程透明，每一步都有專人說明。"],
+        points: ["從零開始，顧問全程陪伴", "釐清預算與需求再推薦", "不用英文也能安心諮詢"],
+        emoji: ["🙌", "📋", "💡"]
+      }
+    };
+
+    const TITLES = {
+      "623": [
+        "墨爾本 {loc}｜623 Collins 核心新盤",
+        "📍 623 Collins｜{aud}必看",
+        "623 Collins｜把握 CBD 核心增值機會"
+      ],
+      "AURA": [
+        "AURA｜Southbank 河景生活 ✨",
+        "AURA Melbourne Square｜{aud}專屬",
+        "🏙️ AURA 南岸美學居所"
+      ],
+      "環球置業": [
+        "環球置業｜澳洲置產專業顧問",
+        "🌏 墨爾本建案｜一站式服務",
+        "環球置業｜{aud}安心首選"
+      ]
+    };
+
+    let seed = Date.now();
+
+    function pick(arr) { return arr[Math.floor(rand() * arr.length)]; }
+    function rand() { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }
+
+    function getCheckedPoints() {
+      return [...document.querySelectorAll('#sellingPoints input:checked')].map(c => c.value);
+    }
+
+    function buildCopy() {
+      const brandKey = document.getElementById('brand').value;
+      const audienceKey = document.getElementById('audience').value;
+      const brand = BRAND[brandKey];
+      const location = document.getElementById('location').value.trim() || brand.defaultLoc;
+      const extra = document.getElementById('highlight').value.trim();
+      const tone = document.getElementById('tone').value;
+      const aud = AUDIENCE[audienceKey];
+      const points = getCheckedPoints();
+      const audShort = { "投資": "投資客", "自住": "自住族", "首購": "首購族" }[audienceKey];
+
+      let title = pick(TITLES[brandKey])
+        .replace("{loc}", location)
+        .replace("{aud}", audShort);
+
+      let desc = `${brand.name}${location !== brand.defaultLoc ? "・" + location : ""}｜`;
+      desc += pick(aud.points).slice(0, 20);
+      if (points.length) desc += `・${points[0]}`;
+      desc = desc.slice(0, 90);
+
+      const e1 = pick(aud.emoji), e2 = pick(aud.emoji), e3 = pick(aud.emoji);
+      let body = `${e1} ${pick(aud.open)}\n\n`;
+      body += `【${brand.name}】${pick(brand.hooks)}\n\n`;
+
+      const bulletSource = points.length ? points : aud.points;
+      const bullets = bulletSource.slice(0, 4);
+      bullets.forEach(b => { body += `${e2} ${b}\n`; });
+
+      if (extra) body += `\n${e3} ${extra}\n`;
+
+      if (tone === "急迫") body += `\n⏰ 名額有限，歡迎先了解詳情！\n`;
+      else if (tone === "溫暖") body += `\n💬 歡迎私訊，我們慢慢聊您的需求。\n`;
+      else body += `\n✅ 專業團隊協助評估，資訊透明不踩雷。\n`;
+
+      body += `\n${brand.tags.join(" ")}\n`;
+      body += `\n👉 填表留下資料，專人與您聯繫`;
+
+      return { title, desc, body };
+    }
+
+    function render() {
+      const { title, desc, body } = buildCopy();
+      document.getElementById('out-title').textContent = title;
+      document.getElementById('out-desc').textContent = desc;
+      document.getElementById('out-body').textContent = body;
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 1800);
+    }
+
+    function copyText(text, btn) {
+      navigator.clipboard.writeText(text).then(() => {
+        if (btn) {
+          btn.classList.add('copied');
+          btn.textContent = '已複製';
+          setTimeout(() => { btn.classList.remove('copied'); btn.textContent = '複製'; }, 1500);
+        }
+        showToast('已複製到剪貼簿');
+      });
+    }
+
+    // Init selling point chips
+    const chipsEl = document.getElementById('sellingPoints');
+    SELLING_OPTIONS.forEach((opt, i) => {
+      const label = document.createElement('label');
+      label.className = 'chip';
+      label.innerHTML = `<input type="checkbox" value="${opt}" ${i < 3 ? 'checked' : ''} /> ${opt}`;
+      chipsEl.appendChild(label);
+    });
+
+    function syncBrandDefaults() {
+      const brandKey = document.getElementById('brand').value;
+      document.getElementById('location').placeholder =
+        brandKey === "623" ? "例：墨爾本 CBD、Collins Street、Southern Cross 旁..."
+        : brandKey === "AURA" ? "例：Southbank、Yarra River 河景、Melbourne Square..."
+        : "例：雪梨、墨爾本、布里斯本...";
+    }
+
+    document.getElementById('brand').addEventListener('change', syncBrandDefaults);
+
+    document.getElementById('generate').addEventListener('click', () => { seed = Date.now(); render(); });
+    document.getElementById('shuffle').addEventListener('click', () => { seed = Date.now() + Math.random() * 1e6; render(); });
+
+    document.querySelectorAll('.copy-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const el = document.getElementById(btn.dataset.target);
+        copyText(el.textContent, btn);
+      });
+    });
+
+    document.getElementById('copy-all').addEventListener('click', () => {
+      const all = ['標題', document.getElementById('out-title').textContent,
+        '說明', document.getElementById('out-desc').textContent,
+        '文案', document.getElementById('out-body').textContent].join('\n\n');
+      copyText(all);
+    });
+
+    syncBrandDefaults();
+    render();
+  </script>
+</body>
+</html>

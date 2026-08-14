@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>環球置業 Reels 腳本產生器</title>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --card: #1a2332;
+      --border: #2d3a4f;
+      --accent: #c9a227;
+      --text: #e8ecf1;
+      --muted: #8b9cb3;
+      --success: #3d9a6a;
+      --scene: #243044;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Segoe UI", "Microsoft JhengHei", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+    .wrap { max-width: 960px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+    header { text-align: center; margin-bottom: 2rem; }
+    header h1 { font-size: 1.5rem; font-weight: 600; color: var(--accent); }
+    header p { color: var(--muted); font-size: 0.9rem; margin-top: 0.35rem; }
+    .grid { display: grid; gap: 1.25rem; }
+    @media (min-width: 720px) { .grid-2 { grid-template-columns: 1fr 1fr; } }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+    }
+    .card h2 {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      margin-bottom: 1rem;
+    }
+    label { display: block; font-size: 0.85rem; color: var(--muted); margin-bottom: 0.35rem; }
+    select, input[type="text"], textarea {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      padding: 0.6rem 0.75rem;
+      font-size: 0.95rem;
+      font-family: inherit;
+      margin-bottom: 0.85rem;
+    }
+    select:focus, input:focus, textarea:focus { outline: none; border-color: var(--accent); }
+    textarea { min-height: 64px; resize: vertical; }
+    .chips { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.85rem; }
+    .chip {
+      display: flex; align-items: center; gap: 0.35rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 0.35rem 0.75rem;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+    .chip:has(input:checked) { border-color: var(--accent); background: rgba(201,162,39,0.12); }
+    .chip input { accent-color: var(--accent); }
+    .actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 0.5rem; }
+    button {
+      cursor: pointer; border: none; border-radius: 8px;
+      padding: 0.65rem 1.25rem; font-size: 0.95rem;
+      font-family: inherit; font-weight: 600;
+    }
+    button:active { transform: scale(0.98); }
+    .btn-primary { background: var(--accent); color: #1a1200; flex: 1; min-width: 140px; }
+    .btn-secondary { background: transparent; color: var(--text); border: 1px solid var(--border); }
+    .output-head {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;
+    }
+    .output-head span { font-size: 0.85rem; font-weight: 600; color: var(--accent); }
+    .copy-btn {
+      font-size: 0.75rem; padding: 0.25rem 0.6rem;
+      background: var(--bg); color: var(--muted);
+      border: 1px solid var(--border); border-radius: 6px; cursor: pointer;
+    }
+    .copy-btn.copied { color: var(--success); border-color: var(--success); }
+    .scene {
+      background: var(--scene);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem;
+      margin-bottom: 0.75rem;
+    }
+    .scene-head {
+      display: flex; justify-content: space-between;
+      font-size: 0.8rem; color: var(--accent);
+      margin-bottom: 0.5rem; font-weight: 600;
+    }
+    .scene-row { font-size: 0.88rem; margin-bottom: 0.35rem; }
+    .scene-row strong { color: var(--muted); font-weight: 600; font-size: 0.78rem; }
+    .scene-row.prompt { color: #a8c4e8; font-size: 0.82rem; margin-top: 0.5rem; }
+    .full-output {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+      font-size: 0.88rem;
+      white-space: pre-wrap;
+      word-break: break-word;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    .tabs { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+    .tab {
+      padding: 0.4rem 0.85rem; border-radius: 8px; font-size: 0.85rem;
+      background: var(--bg); border: 1px solid var(--border);
+      color: var(--muted); cursor: pointer;
+    }
+    .tab.active { border-color: var(--accent); color: var(--accent); background: rgba(201,162,39,0.1); }
+    .panel { display: none; }
+    .panel.active { display: block; }
+    .toast {
+      position: fixed; bottom: 1.5rem; left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--success); color: #fff;
+      padding: 0.6rem 1.2rem; border-radius: 8px;
+      font-size: 0.9rem; opacity: 0;
+      transition: transform 0.25s, opacity 0.25s;
+      pointer-events: none; z-index: 100;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+    footer { text-align: center; margin-top: 2rem; font-size: 0.8rem; color: var(--muted); }
+    .presets { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.85rem; }
+    .preset {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 0.35rem 0.75rem;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+    .preset:hover { border-color: var(--accent); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>🎬 環球置業 Reels 腳本產生器</h1>
+      <p>623 · AURA · 環球置業｜輸出：分鏡、字幕、口播、即夢/Flow Prompt → CapCut 剪輯</p>
+    </header>
+
+    <div class="grid grid-2">
+      <div class="card">
+        <h2>基本設定</h2>
+        <label for="brand">建案 / 品牌</label>
+        <select id="brand">
+          <option value="623">623 Collins（墨爾本 CBD）</option>
+          <option value="AURA">AURA Melbourne Square（Southbank）</option>
+          <option value="環球置業">環球置業（品牌）</option>
+        </select>
+        <label for="audience">目標受眾</label>
+        <select id="audience">
+          <option value="投資">投資型買家</option>
+          <option value="自住">自住家庭</option>
+          <option value="首購">首購 / 觀望族群</option>
+        </select>
+        <label for="format">影片類型</label>
+        <select id="format">
+          <option value="建案介紹">建案介紹</option>
+          <option value="說明會引流">說明會引流</option>
+          <option value="賣點快切">賣點快切（快節奏）</option>
+        </select>
+        <label for="duration">片長</label>
+        <select id="duration">
+          <option value="15">15 秒</option>
+          <option value="30" selected>30 秒</option>
+          <option value="60">60 秒</option>
+        </select>
+      </div>
+
+      <div class="card">
+        <h2>Hook 與選項</h2>
+        <label for="hook">開場 Hook 風格</label>
+        <select id="hook">
+          <option value="問題式">問題式（你還在…？）</option>
+          <option value="數字式">數字式（3 個理由…）</option>
+          <option value="對比式">對比式（別人 vs 你）</option>
+          <option value="限時式">限時式（說明會／優惠）</option>
+        </select>
+        <label>賣點勾選</label>
+        <div class="chips" id="sellingPoints"></div>
+        <label for="extra">額外資訊（選填）</label>
+        <textarea id="extra" placeholder="例：8/25 台北說明會、早鳥優惠截止日..."></textarea>
+        <label>快速載入預設腳本</label>
+        <div class="presets" id="scriptPresets">
+          <span class="preset" data-preset="623-15-invest">623·15s·投資</span>
+          <span class="preset" data-preset="623-30-live">623·30s·自住</span>
+          <span class="preset" data-preset="623-60-seminar">623·60s·說明會</span>
+          <span class="preset" data-preset="aura-15-invest">AURA·15s·投資</span>
+          <span class="preset" data-preset="aura-30-live">AURA·30s·自住</span>
+          <span class="preset" data-preset="aura-60-seminar">AURA·60s·說明會</span>
+        </div>
+        <div class="actions">
+          <button type="button" class="btn-primary" id="generate">🎬 產生腳本</button>
+          <button type="button" class="btn-secondary" id="shuffle">🔄 換一版</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top: 1.25rem;">
+      <div class="output-head">
+        <span>輸出結果</span>
+        <div style="display:flex;gap:0.5rem;">
+          <button type="button" class="copy-btn" id="copy-all">📋 複製全部</button>
+          <button type="button" class="copy-btn" id="copy-capcut">📱 CapCut 備忘</button>
+        </div>
+      </div>
+      <div class="tabs">
+        <button type="button" class="tab active" data-panel="storyboard">分鏡表</button>
+        <button type="button" class="tab" data-panel="fulltext">純文字版</button>
+        <button type="button" class="tab" data-panel="prompts">AI 視覺 Prompt</button>
+      </div>
+      <div id="panel-storyboard" class="panel active"></div>
+      <div id="panel-fulltext" class="panel"><div class="full-output" id="fulltext"></div></div>
+      <div id="panel-prompts" class="panel"><div class="full-output" id="prompts"></div></div>
+    </div>
+
+    <footer>本機工具 · 搭配 CapCut + 即夢/Flow · 比例 9:16 · CTA 固定末行</footer>
+  </div>
+  <div class="toast" id="toast">已複製</div>
+
+  <script>
+    const SELLING = {
+      "623": ["CBD 核心地段", "Southern Cross 交通", "百年立面改造", "Collins Street", "2028 完工", "1-3 房靈活"],
+      "AURA": ["Southbank 河景", "日式養生會所", "67 層地標", "Melbourne Square", "2026 完工", "Woolworths 樓下"],
+      "環球置業": ["一站式顧問", "台灣團隊", "雪梨墨爾本布里斯本", "說明會", "FIRB 協助", "Global Realty"]
+    };
+
+    const HOOKS = {
+      "問題式": ["還在觀望澳洲置產？", "墨爾本 CBD 還有這種機會？", "台灣人買澳洲房，第一步你做對了嗎？"],
+      "數字式": ["3 個理由，為什麼選這裡", "5 分鐘搞懂這個建案", "2 分鐘帶你看墨爾本核心"],
+      "對比式": ["別人還在搜資料，你已經可以行動", "同樣預算，CBD 核心 vs 外圍差在哪"],
+      "限時式": ["說明會名額有限，先卡位", "這週末台北專場，錯過等下一季"]
+    };
+
+    const AUDIENCE_LINE = {
+      "投資": "租金需求穩、核心地段，適合長期配置",
+      "自住": "生活機能完整，適合家庭長期規劃",
+      "首購": "流程透明，顧問一步步帶您了解"
+    };
+
+    const FORMAT_SCENES = {
+      "建案介紹": ["hook", "location", "feature", "feature", "trust", "cta"],
+      "說明會引流": ["hook", "pain", "location", "event", "benefit", "cta"],
+      "賣點快切": ["hook", "location", "point", "cta"]
+    };
+
+    const PRESETS = {
+      "623-15-invest": { brand: "623", audience: "投資", format: "賣點快切", duration: "15", hook: "問題式", extra: "" },
+      "623-30-live": { brand: "623", audience: "自住", format: "建案介紹", duration: "30", hook: "數字式", extra: "" },
+      "623-60-seminar": { brand: "623", audience: "首購", format: "說明會引流", duration: "60", hook: "限時式", extra: "[日期] [城市] 線下說明會｜623 Collins + AURA" },
+      "aura-15-invest": { brand: "AURA", audience: "投資", format: "賣點快切", duration: "15", hook: "數字式", extra: "" },
+      "aura-30-live": { brand: "AURA", audience: "自住", format: "建案介紹", duration: "30", hook: "對比式", extra: "" },
+      "aura-60-seminar": { brand: "AURA", audience: "首購", format: "說明會引流", duration: "60", hook: "問題式", extra: "[日期] [城市] 環球置業說明會｜623 vs AURA" }
+    };
+
+    const PRESET_HOOKS = {
+      "623-15-invest": "墨爾本 CBD 還有這種機會？",
+      "623-30-live": "3 個理由，為什麼選這裡",
+      "623-60-seminar": "說明會名額有限，先卡位",
+      "aura-15-invest": "2 分鐘帶你看墨爾本南岸",
+      "aura-30-live": "同樣預算，CBD 核心 vs 南岸河景差在哪？",
+      "aura-60-seminar": "台灣人買澳洲房，第一步你做對了嗎？"
+    };
+
+    const SCENE_LABELS = {
+      hook: "開場 Hook",
+      location: "地段空景",
+      feature: "建案亮點",
+      pain: "痛點共鳴",
+      event: "說明會資訊",
+      benefit: "參加好處",
+      point: "賣點快切",
+      trust: "品牌信任",
+      cta: "CTA 結尾"
+    };
+
+    const VISUAL = {
+      "623": {
+        location: "Melbourne CBD Collins Street aerial at golden hour, modern tower with heritage facade, cinematic",
+        feature: "Luxury apartment interior Melbourne CBD, floor to ceiling windows, Southern Cross station view",
+        trust: "Professional real estate consultation, Taiwan client meeting, warm office lighting"
+      },
+      "AURA": {
+        location: "Melbourne Southbank Yarra River skyline at sunset, high-rise residential tower",
+        feature: "Wellness spa pool rooftop Melbourne, Japanese inspired interior, river view apartment",
+        trust: "Property showcase event, modern sales gallery, Melbourne Square development"
+      },
+      "環球置業": {
+        location: "Sydney and Melbourne cityscape montage, Australia skyline, professional real estate",
+        feature: "Taiwan family reviewing property brochure, overseas investment planning",
+        trust: "Global Realty team, property expo booth, professional consultation"
+      }
+    };
+
+    let seed = Date.now();
+
+    function pick(arr) { return arr[Math.floor(rand() * arr.length)]; }
+    function rand() { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }
+
+    function getDurationBudget(totalSec) {
+      const n = totalSec <= 15 ? 4 : totalSec <= 30 ? 6 : 8;
+      const each = Math.floor(totalSec / n);
+      return { n, each };
+    }
+
+    function buildScene(type, brand, audience, points, extra, hookStyle, format, sec) {
+      const b = brand;
+      const vis = VISUAL[b] || VISUAL["環球置業"];
+      let vo = "", sub = "", prompt = "", note = "";
+
+      switch (type) {
+        case "hook":
+          vo = (window._forcedHook) || pick(HOOKS[hookStyle]);
+          sub = vo;
+          prompt = vis.location;
+          note = "0.5 秒內出字幕，前 3 秒決定滑不走";
+          break;
+        case "location":
+          vo = b === "623" ? "Collins Street 西端，CBD 核心，Southern Cross 站步行可達"
+            : b === "AURA" ? "Southbank 南岸，一橋之隔就是墨爾本 CBD，河景盡收眼底"
+            : "雪梨、墨爾本、布里斯本，環球置業為您精選澳洲核心建案";
+          sub = b === "623" ? "📍 墨爾本 CBD 核心" : b === "AURA" ? "📍 Southbank 河景" : "🌏 澳洲三大城市";
+          prompt = vis.location;
+          note = "空景 + 地圖動畫或即夢生成";
+          break;
+        case "feature":
+          const pt = points.length ? pick(points) : pick(SELLING[b]);
+          vo = `${pt}，${AUDIENCE_LINE[audience]}`;
+          sub = pt;
+          prompt = vis.feature;
+          note = "建案渲染圖 + 字幕條";
+          break;
+        case "pain":
+          vo = "海外置產資訊太多，不知道从哪开始？";
+          sub = "資訊爆炸？一次搞懂";
+          prompt = "Confused person scrolling phone, then relieved expression, clean minimal";
+          break;
+        case "event":
+          vo = extra || "台北說明會，澳洲專家親自為您解析市場與建案";
+          sub = extra ? "📅 " + extra.replace(/\[日期\]\s*\[城市\]\s*/, "").slice(0, 24) : "📅 說明會報名中";
+          prompt = "Real estate seminar event, presentation screen, audience in Taiwan";
+          note = "插入說明會日期地點字卡";
+          break;
+        case "benefit":
+          vo = "現場 Q&A、一對一諮詢，名額有限";
+          sub = "免費諮詢 · 名額有限";
+          prompt = vis.trust;
+          break;
+        case "point":
+          const p2 = pick(points.length ? points : SELLING[b]);
+          vo = p2;
+          sub = p2;
+          prompt = vis.feature;
+          note = "快切 1.5 秒/鏡";
+          break;
+        case "trust":
+          vo = "環球置業 Global Realty，台灣團隊在地支援，從選案到交付一路陪伴";
+          sub = "環球置業 · 專業顧問";
+          prompt = vis.trust;
+          break;
+        case "cta":
+          vo = "填表留下資料，專人與您聯繫";
+          sub = "👉 填表留下資料\n專人與您聯繫";
+          prompt = "Clean CTA end card, gold and dark blue, real estate brand, Traditional Chinese text placeholder";
+          note = "末 3 秒固定 CTA 字卡 + 表單連結";
+          break;
+      }
+
+      return { type, label: SCENE_LABELS[type], sec, vo, sub, prompt, note };
+    }
+
+    function generateScript() {
+      const brand = document.getElementById("brand").value;
+      const audience = document.getElementById("audience").value;
+      const format = document.getElementById("format").value;
+      const duration = parseInt(document.getElementById("duration").value, 10);
+      const hookStyle = document.getElementById("hook").value;
+      const extra = document.getElementById("extra").value.trim();
+      const points = [...document.querySelectorAll("#sellingPoints input:checked")].map(c => c.value);
+
+      const types = FORMAT_SCENES[format];
+      const { each } = getDurationBudget(duration);
+      const scenes = types.map(t => buildScene(t, brand, audience, points, extra, hookStyle, format, each));
+
+      return { brand, audience, format, duration, scenes };
+    }
+
+    function renderStoryboard(scenes) {
+      const el = document.getElementById("panel-storyboard");
+      el.innerHTML = scenes.map((s, i) => `
+        <div class="scene">
+          <div class="scene-head"><span>Scene ${i + 1} · ${s.label} · ${s.sec}s</span></div>
+          <div class="scene-row"><strong>口播</strong> ${s.vo}</div>
+          <div class="scene-row"><strong>字幕</strong> ${s.sub.replace(/\n/g, " / ")}</div>
+          ${s.note ? `<div class="scene-row"><strong>剪輯</strong> ${s.note}</div>` : ""}
+          <div class="scene-row prompt"><strong>即夢/Flow</strong> ${s.prompt}</div>
+        </div>
+      `).join("");
+    }
+
+    function renderFullText(data) {
+      const { brand, audience, format, duration, scenes } = data;
+      let t = `【Reels 腳本】${brand} · ${audience} · ${format} · ${duration}秒\n`;
+      t += `比例：9:16｜輸出：FB/IG Reels\n\n`;
+      scenes.forEach((s, i) => {
+        t += `--- Scene ${i + 1} (${s.sec}s) ${s.label} ---\n`;
+        t += `口播：${s.vo}\n`;
+        t += `字幕：${s.sub}\n`;
+        if (s.note) t += `剪輯：${s.note}\n`;
+        t += `AI：${s.prompt}\n\n`;
+      });
+      t += `#${brand.replace(/\s/g, "")} #澳洲置產 #墨爾本 #環球置業\n`;
+      t += `\n👉 填表留下資料，專人與您聯繫`;
+      document.getElementById("fulltext").textContent = t;
+      return t;
+    }
+
+    function renderPrompts(scenes) {
+      const t = scenes.map((s, i) => `[${i + 1}] ${s.label}\n${s.prompt}`).join("\n\n");
+      document.getElementById("prompts").textContent = t;
+      return t;
+    }
+
+    function renderCapcutMemo(data) {
+      return `CapCut 備忘\n建案：${data.brand}\n片長：${data.duration}s · 9:16\n\n` +
+        data.scenes.map(s => `${s.label}：${s.sub.split("\n")[0]}`).join("\n") +
+        "\n\nBGM：輕商務 / 都會感\n字幕：白字黑邊\n末段：CTA 字卡 3 秒";
+    }
+
+    let lastData = null;
+    let lastFull = "";
+    let lastCapcut = "";
+
+    function render() {
+      lastData = generateScript();
+      renderStoryboard(lastData.scenes);
+      lastFull = renderFullText(lastData);
+      renderPrompts(lastData.scenes);
+      lastCapcut = renderCapcutMemo(lastData);
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById("toast");
+      t.textContent = msg;
+      t.classList.add("show");
+      setTimeout(() => t.classList.remove("show"), 1800);
+    }
+
+    function copyText(text) {
+      navigator.clipboard.writeText(text).then(() => showToast("已複製到剪貼簿"));
+    }
+
+    function initChips() {
+      const brand = document.getElementById("brand").value;
+      const el = document.getElementById("sellingPoints");
+      el.innerHTML = "";
+      SELLING[brand].forEach((opt, i) => {
+        const label = document.createElement("label");
+        label.className = "chip";
+        label.innerHTML = `<input type="checkbox" value="${opt}" ${i < 3 ? "checked" : ""} /> ${opt}`;
+        el.appendChild(label);
+      });
+    }
+
+    document.getElementById("brand").addEventListener("change", initChips);
+
+    document.querySelectorAll("#scriptPresets .preset").forEach(el => {
+      el.addEventListener("click", () => {
+        const key = el.dataset.preset;
+        const p = PRESETS[key];
+        if (!p) return;
+        document.getElementById("brand").value = p.brand;
+        document.getElementById("audience").value = p.audience;
+        document.getElementById("format").value = p.format;
+        document.getElementById("duration").value = p.duration;
+        document.getElementById("hook").value = p.hook;
+        document.getElementById("extra").value = p.extra;
+        window._forcedHook = PRESET_HOOKS[key] || null;
+        initChips();
+        seed = Date.now();
+        render();
+        showToast("已載入預設：" + el.textContent);
+      });
+    });
+
+    document.getElementById("generate").addEventListener("click", () => { window._forcedHook = null; seed = Date.now(); render(); });
+    document.getElementById("shuffle").addEventListener("click", () => { window._forcedHook = null; seed = Date.now() + Math.random() * 1e6; render(); });
+
+    document.querySelectorAll(".tab").forEach(tab => {
+      tab.addEventListener("click", () => {
+        document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+        document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
+        tab.classList.add("active");
+        document.getElementById("panel-" + tab.dataset.panel).classList.add("active");
+      });
+    });
+
+    document.getElementById("copy-all").addEventListener("click", () => copyText(lastFull));
+    document.getElementById("copy-capcut").addEventListener("click", () => copyText(lastCapcut));
+
+    initChips();
+    render();
+  </script>
+</body>
+</html>
