@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>環球置業／澳華國際 行銷知識庫 Hub</title>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --card: #1a2332;
+      --border: #2d3a4f;
+      --accent: #c9a227;
+      --accent-dim: #8a7020;
+      --text: #e8ecf1;
+      --muted: #8b9cb3;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Segoe UI", "Microsoft JhengHei", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+    .wrap { max-width: 960px; margin: 0 auto; padding: 2.5rem 1.25rem 4rem; }
+    header { text-align: center; margin-bottom: 2.5rem; }
+    header h1 { font-size: 1.6rem; font-weight: 600; color: var(--accent); }
+    header p { color: var(--muted); font-size: 0.95rem; margin-top: 0.5rem; }
+    h2 {
+      font-size: 1.05rem; color: var(--accent); margin: 2rem 0 1rem;
+      border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;
+    }
+    .grid {
+      display: grid; gap: 1rem;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    }
+    a.card {
+      display: block; text-decoration: none; color: inherit;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 12px; padding: 1.1rem 1.25rem;
+      transition: border-color 0.15s, transform 0.15s;
+    }
+    a.card:hover { border-color: var(--accent); transform: translateY(-2px); }
+    a.card .t { font-weight: 600; color: var(--text); font-size: 1.02rem; }
+    a.card .d { color: var(--muted); font-size: 0.85rem; margin-top: 0.35rem; }
+    a.card .badge {
+      display: inline-block; font-size: 0.72rem; color: var(--accent);
+      border: 1px solid var(--accent-dim); border-radius: 6px;
+      padding: 0.05rem 0.45rem; margin-bottom: 0.5rem;
+    }
+    ul.links { list-style: none; display: grid; gap: 0.55rem; }
+    ul.links a { color: var(--text); text-decoration: none; }
+    ul.links a:hover { color: var(--accent); }
+    ul.links .m { color: var(--muted); font-size: 0.82rem; }
+    footer { margin-top: 3rem; text-align: center; color: var(--muted); font-size: 0.8rem; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>環球置業／澳華國際 行銷知識庫 Hub</h1>
+      <p>澳洲置產（墨爾本 623 Collins、AURA Melbourne Square）｜FB 廣告 · SEO 文章 · 工具 · SOP</p>
+    </header>
+
+    <h2>互動工具</h2>
+    <div class="grid">
+      <a class="card" href="tools/fb-ad-generator.html">
+        <span class="badge">工具</span>
+        <div class="t">FB 廣告文案產生器</div>
+        <div class="d">依品牌／受眾產生標題、說明、含 emoji 與 #hashtag 的文案。</div>
+      </a>
+      <a class="card" href="tools/reels-script-generator.html">
+        <span class="badge">工具</span>
+        <div class="t">Reels 腳本產生器</div>
+        <div class="d">產生短影音分鏡與腳本。</div>
+      </a>
+      <a class="card" href="tools/utm-builder.html">
+        <span class="badge">工具</span>
+        <div class="t">UTM 產生器</div>
+        <div class="d">組出帶追蹤參數的行銷連結。</div>
+      </a>
+    </div>
+
+    <h2>常用文件</h2>
+    <ul class="links">
+      <li><a href="README.md">README.md</a> <span class="m">— 專案總覽與快速導覽</span></li>
+      <li><a href="seo-articles/">seo-articles/</a> <span class="m">— 50 篇官網 SEO 初稿與進度追蹤</span></li>
+      <li><a href="briefs/">briefs/</a> <span class="m">— NeuronWriter／ZimmWriter 選題大綱</span></li>
+      <li><a href="docs/">docs/</a> <span class="m">— SOP、Surfn、ZeroRank、Meta 上線清單</span></li>
+      <li><a href="templates/">templates/</a> <span class="m">— 活動 Brief、素材 Checklist、週報模板</span></li>
+      <li><a href="marketing-outputs/">marketing-outputs/</a> <span class="m">— FB 廣告與 Reels 產出</span></li>
+    </ul>
+
+    <footer>內部行銷資產｜於本機以靜態伺服器提供（http://localhost:8000/）</footer>
+  </div>
+</body>
+</html>
