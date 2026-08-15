@@ -1,0 +1,10 @@
+{
+  "name": "Global Realty Marketing Hub",
+  "ports": [
+    {
+      "name": "static-site",
+      "port": 8000
+    }
+  ],
+  "start": "if curl -sf -o /dev/null http://localhost:8000/; then echo 'static server already running on :8000'; else nohup python3 -m http.server 8000 --bind 0.0.0.0 --directory /workspace >/tmp/static-server.log 2>&1 & echo \"started static server on :8000 (pid $!)\"; fi"
+}
