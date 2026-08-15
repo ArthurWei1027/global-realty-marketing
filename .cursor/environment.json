@@ -6,11 +6,5 @@
       "port": 8000
     }
   ],
-  "terminals": [
-    {
-      "name": "static-server",
-      "command": "python3 -m http.server 8000 --bind 0.0.0.0 --directory /workspace",
-      "description": "Serves the repository (Markdown knowledge base + the HTML tools under /tools) over HTTP so the FB ad / Reels / UTM generators can be opened and used in a browser at http://localhost:8000/."
-    }
-  ]
+  "start": "if curl -sf -o /dev/null http://localhost:8000/; then echo 'static server already running on :8000'; else nohup python3 -m http.server 8000 --bind 0.0.0.0 --directory /workspace >/tmp/static-server.log 2>&1 & echo \"started static server on :8000 (pid $!)\"; fi"
 }
