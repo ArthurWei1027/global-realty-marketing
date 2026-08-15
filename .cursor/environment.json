@@ -1,0 +1,16 @@
+{
+  "name": "Global Realty Marketing Hub",
+  "ports": [
+    {
+      "name": "static-site",
+      "port": 8000
+    }
+  ],
+  "terminals": [
+    {
+      "name": "static-server",
+      "command": "python3 -m http.server 8000 --bind 0.0.0.0 --directory /workspace",
+      "description": "Serves the repository (Markdown knowledge base + the HTML tools under /tools) over HTTP so the FB ad / Reels / UTM generators can be opened and used in a browser at http://localhost:8000/."
+    }
+  ]
+}
